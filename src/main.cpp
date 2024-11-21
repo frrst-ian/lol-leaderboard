@@ -75,4 +75,15 @@ public:
         return topUser;
     }
 
+    User top() const {
+        if(heap.empty()) {
+            cout << "Leaderboard is empty!\n";
+            return User();
+        }
+
+        return heap[0];
+    }
+
+    
+
 };
