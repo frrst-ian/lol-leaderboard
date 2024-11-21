@@ -1,6 +1,8 @@
 #include <climits>
 #include <iostream>
+#include <sstream>
 #include <vector> // Use vector instead of array for dynamic sizing
+#include <iomanip>
 
 using namespace std;
 
@@ -103,5 +105,31 @@ public:
 
   void updateRank(User &user) { user.rank = getRankByPower(user.power); }
 
-  
+  static vector<User> getUserInput() {
+    vector<User> inputVector;
+
+    string line;
+
+    cout << "Enter user(format: username rank score), space-separated: \n";
+    cout << "Example: forrest platinum 802";
+    getline(cin , line);
+
+    std::stringstream ss(line);
+    string username;
+    string userRank;
+    int power;
+
+    while(ss >> username >> userRank >> power) {
+        inputVector.emplace_back(username, userRank , power);
+    }
+
+    return inputVector;
+  }
+
+  void printHeap () const {
+    cout << "LEADERBOARD\n";
+    cout << "Username" << setw(3) << "Rank" << setw(3) << "Power" << '\n';
+    for(const auto& user : heap) {
+        cout << setw(3)  << user.username << setw(3) << user.rank << setw(3) << user.power << '\n';}
+  }
 };
