@@ -138,7 +138,7 @@ public:
 
   int size() const { return heap.size(); }
 
-  bool IsEmpty() const { return heap.empty(); }
+  bool isEmpty() const { return heap.empty(); }
 };
 
 int main() {
@@ -149,9 +149,10 @@ int main() {
   while (true) {
     cout << "Leaderboard Operations\n";
     cout << "[1] Add User:\n"
-         << "[3] View Top User:\n"
-         << "[4] View Leaderboard\n"
-         << "[5] Find User\n"
+         << "[2] View Top User:\n"
+         << "[3] View Leaderboard\n"
+         << "[4] Find User\n"
+         << "[5] Remove Top User\n"
          << "[0] Exit\n"
          << "Enter your choice: ";
     cin >> choice;
@@ -167,6 +168,39 @@ int main() {
       maxUserHeap.insert(newUser);
       cout << "User added successfully.\n";
       break;
+    }
+    case 2: {
+      if (!maxUserHeap.isEmpty()) {
+        User topUser = maxUserHeap.top();
+        cout << "Top User: " << topUser.username << ", Rank: " << topUser.rank
+             << ", Power: " << topUser.power << '\n';
+      } else {
+        cout << "Leaderboard is empty.\n";
+      }
+      break;
+    }
+    case 3: {
+      maxUserHeap.printHeap();
+      break;
+    }
+    case 4: {
+    }
+    case 5: {
+      if (!maxUserHeap.isEmpty()) {
+        User removedUser = maxUserHeap.extract();
+        cout << "Successfully removed " << removedUser.username << '\n';
+
+      } else {
+        cout << "Leaderboard is empty.\n";
+      }
+      break;
+    }
+    case 0: {
+      cout << "Exiting the program...\n";
+      return 0;
+    }
+    default: {
+      cout << "Invalid choice. Please try again.\n";
     }
     }
   }
