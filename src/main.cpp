@@ -1,6 +1,7 @@
 #include <climits>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <vector> // Use vector instead of array for dynamic sizing
 
@@ -11,7 +12,7 @@ struct User {
   string rank;
   int power;
 
-  User(const string &name = "", const string &userRank, int userPower = 0)
+  User(const string &name = "", const string &userRank = "", int userPower = 0)
       : username(name), rank(userRank), power(userPower) {}
 };
 
@@ -105,25 +106,25 @@ public:
 
   void updateRank(User &user) { user.rank = getRankByPower(user.power); }
 
-  static vector<User> getUserInput() {
-    vector<User> inputVector;
-
-    string line;
-
-    cout << "Enter user(format: username rank score), space-separated: \n";
-    cout << "Example: forrest platinum 802";
-    getline(cin, line);
-
-    std::stringstream ss(line);
+  static User getUserInput() {
     string username;
     string userRank;
     int power;
 
-    while (ss >> username >> userRank >> power) {
-      inputVector.emplace_back(username, userRank, power);
-    }
+    while (true) {
+      cout << "Enter user details (username rank power) space-separated: ";
 
-    return inputVector;
+      cin.clear();
+
+      if (cin >> username >> userRank >> power) {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return User(username, userRank, power);
+      } else {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Invalid input. Try again.\n";
+      }
+    }
   }
 
   void printHeap() const {
@@ -139,3 +140,36 @@ public:
 
   bool IsEmpty() const { return heap.empty(); }
 };
+
+int main() {
+  LeaderboardHeap maxUserHeap(true);
+
+  int choice;
+
+  while (true) {
+    cout << "Leaderboard Operations\n";
+    cout << "[1] Add User:\n"
+         << "[3] View Top User:\n"
+         << "[4] View Leaderboard\n"
+         << "[5] Find User\n"
+         << "[0] Exit\n"
+         << "Enter your choice: ";
+    cin >> choice;
+    if (cin.fail()) {
+      cout << "Invalid choice! Try again...\n";
+      return 1;
+    }
+
+    switch (choice) {
+    case 1: {
+      User newUser = LeaderboardHeap::getUserInput();
+      maxUserHeap.updateRank(newUser);
+      maxUserHeap.insert(newUser);
+      cout << "User added successfully.\n";
+      break;
+    }
+    }
+  }
+
+  return 0;
+}
