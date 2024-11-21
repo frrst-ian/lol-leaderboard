@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <climits>
 #include <iomanip>
 #include <iostream>
@@ -136,6 +137,15 @@ public:
     }
   }
 
+  User *findUser(const std::string &username) {
+    auto it =
+        std::find_if(heap.begin(), heap.end(), [&username](const User &user) {
+          return user.username == username;
+        });
+
+    return (it != heap.end()) ? &(*it) : nullptr;
+  }
+
   int size() const { return heap.size(); }
 
   bool isEmpty() const { return heap.empty(); }
@@ -184,6 +194,17 @@ int main() {
       break;
     }
     case 4: {
+      string username;
+      cout << "Enter username to find: ";
+      cin >> username;
+      User *foundUser = maxUserHeap.findUser(username);
+      if (foundUser) {
+        cout << "Found username: " << foundUser->username
+             << ", Rank: " << foundUser->rank << ", Power: " << foundUser->power
+             << '\n';
+      } else {
+        cout << "User not found!\n";
+      }
     }
     case 5: {
       if (!maxUserHeap.isEmpty()) {
