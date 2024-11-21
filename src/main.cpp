@@ -26,5 +26,30 @@ class LeaderboardHeap {
             return isMaxHeap ? ( a.power > b.power) : (a.power < b.power);
         }
 
+        void heapifyDown(int i) {
+            int target = i;
+            int left = leftChild(i);
+            int right = rightChild(i);
+
+            if(left < heap.size() && compare(heap[left] , heap[target]))
+                target = left;
+            
+            if(right < heap.size() && compare(heap[right] , heap[target]))
+                target= right;
+            
+            if(target != i) {
+                swap(heap[i] , heap[target]);
+                heapifyDown(target);
+            }
+        }
+
+        void heapifyUp(int i ) {
+            while(i > 0 && compare(heap[i] , heap[parent(i)])){
+                swap(heap[i] , heap[parent(i)]);
+                i = parent(i);
+            }
+        }
+
+
 
 };
