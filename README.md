@@ -8,7 +8,7 @@
 
 ## Description
 
-The purpose of this project is to create a simple leaderboard for the game league of legends. This projects sorts the users based on their power and rank. I created it so that I can practice my skills in Max/Min heaps data structure.  
+The purpose of this project is to create a simple leaderboard for the game league of legends. This project sorts the users based on their power and rank. I created this so that I can practice my skills in Max/Min heaps data structure.  
 
 ## Design
 
