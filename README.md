@@ -13,7 +13,7 @@ The purpose of this project is to create a simple leaderboard for the game leagu
 ## Design
 
 <div align='center'>
-<img src='/assets/754shots_so.png' alt="Screenshot of leaderboard design"/>
+<img src='/assets/ss.png' alt="Screenshot of leaderboard design"/>
 </div>
 
 ## Features
