@@ -1,20 +1,46 @@
 #include <algorithm>
-#include <climits>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <sstream>
-#include <vector> // Use vector instead of array for dynamic sizing
+#include <vector>
 
 using namespace std;
+
+// ANSI escape codes for text colors
+#define RESET "\033[0m"
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define YELLOW "\033[33m"
+#define BLUE "\033[34m"
 
 struct User {
   string username;
   string rank;
   int power;
 
-  User(const string &name = "", const string &userRank = "", int userPower = 0)
-      : username(name), rank(userRank), power(userPower) {}
+  User(const string &name = "", int userPower = 0)
+      : username(name), power(userPower) {
+    // Automatically calculate rank based on power
+    rank = getRankByPower(power);
+  }
+
+  // Static method to get rank by power
+  static string getRankByPower(int power) {
+    if (power < 100)
+      return "Bronze";
+    if (power < 300)
+      return "Silver";
+    if (power < 500)
+      return "Gold";
+    if (power < 700)
+      return "Platinum";
+    if (power < 900)
+      return "Diamond";
+    if (power < 1100)
+      return "Master";
+    return "Grandmaster";
+  }
 };
 
 class LeaderboardHeap {
@@ -62,6 +88,19 @@ public:
     heapifyUp(heap.size() - 1);
   }
 
+  void loadExampleLeaderboard() {
+    heap.clear();
+
+    vector<User> exampleUsers = {User("Ian", 1300), User("Faker", 1400),
+                                 User("Chovi", 1350), User("Zeus", 1300)};
+    for (const auto &user : exampleUsers) {
+      insert(user);
+    }
+
+    cout << "Sample leaderboard successfully loaded with " << heap.size()
+         << " users.\n";
+  }
+
   User extract() {
     if (heap.empty()) {
       cout << "Leaderboard is empty!\n";
@@ -89,37 +128,18 @@ public:
     return heap[0];
   }
 
-  string getRankByPower(int power) {
-    if (power < 100)
-      return "Bronze";
-    if (power < 300)
-      return "Silver";
-    if (power < 500)
-      return "Gold";
-    if (power < 700)
-      return "Platinum";
-    if (power < 900)
-      return "Diamond";
-    if (power < 1100)
-      return "Master";
-    return "Grandmaster";
-  }
-
-  void updateRank(User &user) { user.rank = getRankByPower(user.power); }
-
   static User getUserInput() {
     string username;
-    string userRank;
     int power;
 
     while (true) {
-      cout << "Enter user details (username rank power) space-separated: ";
+      cout << "Enter username and power (space-separated): ";
 
       cin.clear();
 
-      if (cin >> username >> userRank >> power) {
+      if (cin >> username >> power) {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        return User(username, userRank, power);
+        return User(username, power);
       } else {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -129,12 +149,24 @@ public:
   }
 
   void printHeap() const {
-    cout << "LEADERBOARD\n";
-    cout << "Username" << setw(3) << "Rank" << setw(3) << "Power" << '\n';
-    for (const auto &user : heap) {
-      cout << setw(3) << user.username << setw(3) << user.rank << setw(3)
-           << user.power << '\n';
+    if (heap.empty()) {
+      cout << "Leaderboard is empty.\n";
+      return;
     }
+
+    cout << YELLOW << "\nLEADERBOARD\n" << RESET;
+    cout << BLUE << left << setw(15) << "Username" << setw(15) << "Rank"
+         << "Power\n"
+         << RESET;
+    cout << GREEN << string(45, '-') << '\n' << RESET;
+
+    for (const auto &user : heap) {
+      cout << RED << left << setw(15) << user.username << RESET << GREEN
+           << setw(15) << user.rank << RESET << YELLOW << user.power << '\n'
+           << RESET;
+    }
+
+    cout << '\n';
   }
 
   User *findUser(const std::string &username) {
@@ -156,36 +188,43 @@ int main() {
 
   int choice;
 
+  cout << RED
+       << "========= WELCOME TO LEAGUE OF LEGENDS LEADERBOARD =========\n"
+       << "    "
+       << "Show off your Skills and be the Top Player, PLAY NOW!\n\n"
+       << RESET;
   while (true) {
-    cout << "Leaderboard Operations\n";
-    cout << "[1] Add User:\n"
-         << "[2] View Top User:\n"
+    cout << YELLOW << "Leaderboard Operations\n" << RESET;
+    cout << "[1] Add User\n"
+         << "[2] View Top User\n"
          << "[3] View Leaderboard\n"
          << "[4] Find User\n"
          << "[5] Remove Top User\n"
+         << "[6] Load Sample Leaderboard\n"
          << "[0] Exit\n"
          << "Enter your choice: ";
     cin >> choice;
     if (cin.fail()) {
-      cout << "Invalid choice! Try again...\n";
+      cout << RED << "Invalid choice! Try again...\n" << RESET;
       return 1;
     }
 
     switch (choice) {
     case 1: {
       User newUser = LeaderboardHeap::getUserInput();
-      maxUserHeap.updateRank(newUser);
       maxUserHeap.insert(newUser);
-      cout << "User added successfully.\n";
+      cout << GREEN << "User added successfully.\n" << RESET;
       break;
     }
     case 2: {
       if (!maxUserHeap.isEmpty()) {
         User topUser = maxUserHeap.top();
-        cout << "Top User: " << topUser.username << ", Rank: " << topUser.rank
-             << ", Power: " << topUser.power << '\n';
+        cout << YELLOW << "Top User: " << topUser.username
+             << ", Rank: " << topUser.rank << ", Power: " << topUser.power
+             << '\n'
+             << RESET;
       } else {
-        cout << "Leaderboard is empty.\n";
+        cout << RED << "Leaderboard is empty.\n" << RESET;
       }
       break;
     }
@@ -199,21 +238,29 @@ int main() {
       cin >> username;
       User *foundUser = maxUserHeap.findUser(username);
       if (foundUser) {
-        cout << "Found username: " << foundUser->username
+        cout << BLUE << "Found username: " << foundUser->username
              << ", Rank: " << foundUser->rank << ", Power: " << foundUser->power
-             << '\n';
+             << '\n'
+             << RESET;
       } else {
-        cout << "User not found!\n";
+        cout << RED << "User not found!\n" << RESET;
       }
+      break;
     }
     case 5: {
       if (!maxUserHeap.isEmpty()) {
         User removedUser = maxUserHeap.extract();
-        cout << "Successfully removed " << removedUser.username << '\n';
-
+        cout << BLUE << "Successfully removed " << removedUser.username << '\n'
+             << RESET;
       } else {
         cout << "Leaderboard is empty.\n";
       }
+      break;
+    }
+    case 6: {
+      maxUserHeap.loadExampleLeaderboard();
+      maxUserHeap.printHeap();
+
       break;
     }
     case 0: {
@@ -221,7 +268,7 @@ int main() {
       return 0;
     }
     default: {
-      cout << "Invalid choice. Please try again.\n";
+      cout << RED << "Invalid choice. Please try again.\n" << RESET;
     }
     }
   }
