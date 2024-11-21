@@ -1,3 +1,8 @@
+/*
+ * League of Legends Leaderboard using Max Heap
+ * Tracks player rankings based on power level
+ */
+
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -7,55 +12,54 @@
 
 using namespace std;
 
-// ANSI escape codes for text colors
+// Console color definitions for visual feedback
 #define RESET "\033[0m"
 #define RED "\033[31m"
 #define GREEN "\033[32m"
 #define YELLOW "\033[33m"
 #define BLUE "\033[34m"
 
+// Represents a player with username, rank, and power
 struct User {
   string username;
   string rank;
   int power;
 
+  // Constructor with automatic rank calculation
   User(const string &name = "", int userPower = 0)
       : username(name), power(userPower) {
-    // Automatically calculate rank based on power
     rank = getRankByPower(power);
   }
 
-  // Static method to get rank by power
+  // Determine player's rank based on power level
   static string getRankByPower(int power) {
-    if (power < 100)
-      return "Bronze";
-    if (power < 300)
-      return "Silver";
-    if (power < 500)
-      return "Gold";
-    if (power < 700)
-      return "Platinum";
-    if (power < 900)
-      return "Diamond";
-    if (power < 1100)
-      return "Master";
+    if (power < 100) return "Bronze";
+    if (power < 300) return "Silver";
+    if (power < 500) return "Gold";
+    if (power < 700) return "Platinum";
+    if (power < 900) return "Diamond";
+    if (power < 1100) return "Master";
     return "Grandmaster";
   }
 };
 
+// Manages the leaderboard using a heap data structure
 class LeaderboardHeap {
 private:
-  vector<User> heap;
-  bool isMaxHeap;
+  vector<User> heap;  // Underlying heap storage
+  bool isMaxHeap;     // Heap type (max or min)
 
+  // Heap navigation helpers
   int parent(int i) { return (i - 1) / 2; }
   int leftChild(int i) { return 2 * i + 1; }
   int rightChild(int i) { return 2 * i + 2; }
 
+  // Compare users based on heap type
   bool compare(const User &a, const User &b) {
     return isMaxHeap ? (a.power > b.power) : (a.power < b.power);
   }
 
+  // Restore heap property after removal
   void heapifyDown(int i) {
     int target = i;
     int left = leftChild(i);
@@ -73,6 +77,7 @@ private:
     }
   }
 
+  // Restore heap property after insertion
   void heapifyUp(int i) {
     while (i > 0 && compare(heap[i], heap[parent(i)])) {
       swap(heap[i], heap[parent(i)]);
@@ -81,26 +86,31 @@ private:
   }
 
 public:
+  // Constructor with heap type
   LeaderboardHeap(bool maxHeap = true) : isMaxHeap(maxHeap) {}
 
+  // Add a new user to the leaderboard
   void insert(const User &user) {
     heap.push_back(user);
     heapifyUp(heap.size() - 1);
   }
 
+  // Create leaderboard with example players
   void loadExampleLeaderboard() {
     heap.clear();
-
-    vector<User> exampleUsers = {User("Ian", 1300), User("Faker", 1400),
-                                 User("Chovi", 1350), User("Zeus", 1300)};
+    vector<User> exampleUsers = {
+      User("Ian", 1300), 
+      User("Faker", 1400),
+      User("Chovi", 1350), 
+      User("Zeus", 1300)
+    };
     for (const auto &user : exampleUsers) {
       insert(user);
     }
-
-    cout << "Sample leaderboard successfully loaded with " << heap.size()
-         << " users.\n";
+    cout << "Sample leaderboard loaded with " << heap.size() << " users.\n";
   }
 
+  // Remove and return the top user
   User extract() {
     if (heap.empty()) {
       cout << "Leaderboard is empty!\n";
@@ -108,7 +118,6 @@ public:
     }
 
     User topUser = heap[0];
-
     heap[0] = heap.back();
     heap.pop_back();
 
@@ -119,22 +128,22 @@ public:
     return topUser;
   }
 
+  // Get the top user without removing
   User top() const {
     if (heap.empty()) {
       cout << "Leaderboard is empty!\n";
       return User();
     }
-
     return heap[0];
   }
 
+  // Interactively get user input
   static User getUserInput() {
     string username;
     int power;
 
     while (true) {
       cout << "Enter username and power (space-separated): ";
-
       cin.clear();
 
       if (cin >> username >> power) {
@@ -148,6 +157,7 @@ public:
     }
   }
 
+  // Display the entire leaderboard
   void printHeap() const {
     if (heap.empty()) {
       cout << "Leaderboard is empty.\n";
@@ -156,8 +166,7 @@ public:
 
     cout << YELLOW << "\nLEADERBOARD\n" << RESET;
     cout << BLUE << left << setw(15) << "Username" << setw(15) << "Rank"
-         << "Power\n"
-         << RESET;
+         << "Power\n" << RESET;
     cout << GREEN << string(45, '-') << '\n' << RESET;
 
     for (const auto &user : heap) {
@@ -165,21 +174,21 @@ public:
            << setw(15) << user.rank << RESET << YELLOW << user.power << '\n'
            << RESET;
     }
-
     cout << '\n';
   }
 
+  // Find a user by username
   User *findUser(const std::string &username) {
-    auto it =
-        std::find_if(heap.begin(), heap.end(), [&username](const User &user) {
-          return user.username == username;
-        });
+    auto it = std::find_if(heap.begin(), heap.end(), 
+      [&username](const User &user) { return user.username == username; });
 
     return (it != heap.end()) ? &(*it) : nullptr;
   }
 
+  // Get current leaderboard size
   int size() const { return heap.size(); }
 
+  // Check if leaderboard is empty
   bool isEmpty() const { return heap.empty(); }
 };
 
@@ -188,11 +197,13 @@ int main() {
 
   int choice;
 
+  // Welcome screen
   cout << RED
-       << "========= WELCOME TO LEAGUE OF LEGENDS LEADERBOARD =========\n"
-       << "    "
-       << "Show off your Skills and be the Top Player, PLAY NOW!\n\n"
+       << "========= LEAGUE OF LEGENDS LEADERBOARD =========\n"
+       << "   Show off your Skills and Conquer the Rift!\n\n"
        << RESET;
+
+  // Main menu loop
   while (true) {
     cout << YELLOW << "Leaderboard Operations\n" << RESET;
     cout << "[1] Add User\n"
@@ -203,36 +214,37 @@ int main() {
          << "[6] Load Sample Leaderboard\n"
          << "[0] Exit\n"
          << "Enter your choice: ";
+    
     cin >> choice;
     if (cin.fail()) {
       cout << RED << "Invalid choice! Try again...\n" << RESET;
       return 1;
     }
 
+    // Menu action handlers
     switch (choice) {
-    case 1: {
+    case 1: {  // Add User
       User newUser = LeaderboardHeap::getUserInput();
       maxUserHeap.insert(newUser);
       cout << GREEN << "User added successfully.\n" << RESET;
       break;
     }
-    case 2: {
+    case 2: {  // View Top User
       if (!maxUserHeap.isEmpty()) {
         User topUser = maxUserHeap.top();
         cout << YELLOW << "Top User: " << topUser.username
              << ", Rank: " << topUser.rank << ", Power: " << topUser.power
-             << '\n'
-             << RESET;
+             << '\n' << RESET;
       } else {
         cout << RED << "Leaderboard is empty.\n" << RESET;
       }
       break;
     }
-    case 3: {
+    case 3: {  // View Leaderboard
       maxUserHeap.printHeap();
       break;
     }
-    case 4: {
+    case 4: {  // Find User
       string username;
       cout << "Enter username to find: ";
       cin >> username;
@@ -240,14 +252,13 @@ int main() {
       if (foundUser) {
         cout << BLUE << "Found username: " << foundUser->username
              << ", Rank: " << foundUser->rank << ", Power: " << foundUser->power
-             << '\n'
-             << RESET;
+             << '\n' << RESET;
       } else {
         cout << RED << "User not found!\n" << RESET;
       }
       break;
     }
-    case 5: {
+    case 5: {  // Remove Top User
       if (!maxUserHeap.isEmpty()) {
         User removedUser = maxUserHeap.extract();
         cout << BLUE << "Successfully removed " << removedUser.username << '\n'
@@ -257,13 +268,12 @@ int main() {
       }
       break;
     }
-    case 6: {
+    case 6: {  // Load Sample Leaderboard
       maxUserHeap.loadExampleLeaderboard();
       maxUserHeap.printHeap();
-
       break;
     }
-    case 0: {
+    case 0: {  // Exit
       cout << "Exiting the program...\n";
       return 0;
     }
