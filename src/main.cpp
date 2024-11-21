@@ -49,7 +49,30 @@ class LeaderboardHeap {
                 i = parent(i);
             }
         }
+public:
+    LeaderboardHeap(bool maxHeap = true) : isMaxHeap(maxHeap){}
 
+    void insert(const User &user) {
+        heap.push_back(user);
+        heapifyUp(heap.size() -1);
+    }
 
+    User extract() {
+        if(heap.empty()) {
+            cout << "Leaderboard is empty!\n" ;
+            return User();
+        }
+
+        User topUser = heap[0];
+
+        heap[0] = heap.back();
+        heap.pop_back();
+
+        if(!heap.empty()) {
+            heapifyDown(0);
+        }
+
+        return topUser;
+    }
 
 };
